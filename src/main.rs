@@ -1,72 +1,56 @@
-// darkS3c: v5 - JULIA SETS!
-// Different c values = different shapes
+// darkS3c: v6 - BURNING SHIP!
+// Different formula: take ABSOLUTE values = totally wild shape
 
 use image::{ImageBuffer, Rgb, RgbImage};
 
-fn iterate(z_re_init: f64, z_im_init: f64, c_re: f64, c_im: f64, max_iter: u32) -> u32 {
-    let mut z_re = z_re_init;
-    let mut z_im = z_im_init;
+fn burning_ship(c_re: f64, c_im: f64, max_iter: u32) -> u32 {
+    let mut z_re = 0.0_f64;
+    let mut z_im = 0.0_f64;
     
     for iteration in 0..max_iter {
         let mag_sq = z_re * z_re + z_im * z_im;
         if mag_sq > 4.0 { return iteration; }
+        
+        // BURNING SHIP FORMULA: use ABSOLUTE values!
         let new_re = z_re * z_re - z_im * z_im + c_re;
-        let new_im = 2.0 * z_re * z_im + c_im;
+        let new_im = 2.0 * z_re.abs() * z_im.abs() + c_im;
         z_re = new_re;
         z_im = new_im;
     }
     max_iter
 }
 
-fn color(t: f64, max_iter: u32) -> Rgb<u8> {
-    if t >= max_iter as f64 { return Rgb([0, 0, 0]); }
-    let cycle = t * 4.0;
-    Rgb([
-        ((cycle.sin() * 127.0 + 128.0) as u8),
-        ((cycle.sin() * 127.0 + 128.0) as u8).wrapping_add(40),
-        ((cycle.sin() * 127.0 + 128.0) as u8).wrapping_add(80),
-    ])
-}
-
-fn render_julia(c_re: f64, c_im: f64, filename: &str) {
-    let w = 600u32;
-    let h = 600u32;
-    let max_iter = 100u32;
-    let bounds = 1.5;
-    
-    let scale = bounds * 2.0 / w as f64;
-    let mut img: RgbImage = ImageBuffer::new(w, h);
-    
-    for py in 0..h {
-        for px in 0..w {
-            let z_re = -bounds + px as f64 * scale;
-            let z_im = -bounds + py as f64 * scale;
-            let t = iterate(z_re, z_im, c_re, c_im, max_iter);
-            img.put_pixel(px, py, color(t as f64, max_iter));
-        }
-    }
-    img.save(filename).expect("Save failed!");
-    println!("Saved: {} (c={}+{}i)", filename, c_re, c_im);
+fn color(t: u32, max_iter: u32) -> Rgb<u8> {
+    if t >= max_iter { return Rgb([0, 0, 0]); }
+    let t = t as f64 / max_iter as f64;
+    let r = (t * 255.0) as u8;
+    let g = (t * 200.0) as u8;
+    let b = (255.0 - t * 180.0) as u8;
+    Rgb([r, g, b])
 }
 
 fn main() {
-    println!("=== darkS3c Julia Collection ===\n");
+    let (w, h) = (1200u32, 900u32);
+    let max_iter = 150u32;
+    let (x_min, x_max) = (-2.5, 1.5);
+    let (y_min, y_max) = (-1.8, 1.8);
+    let sx = (x_max - x_min) / w as f64;
+    let sy = (y_max - y_min) / h as f64;
     
-    // Famous Julia constants
-    render_julia(-0.4, 0.6, "julia1_douady.png");    // Douady rabbit
-    render_julia(-0.8, 0.156, "julia2_dragon.png");  // Dragon
-    render_julia(0.285, 0.01, "julia3.png");         // San Marco
-    render_julia(-0.835, -0.2321, "julia4.png");      // Siegel disk
-    render_julia(-0.4, 0.0, "julia5.png");          // Dendrite
+    let mut img: RgbImage = ImageBuffer::new(w, h);
     
-    // Animated spiral
-    let theta = 0.0;
-    for i in 0..6 {
-        let angle = theta + i as f64 * 1.0472;  // 60 degree steps
-        let c = 0.7885 * angle.cos();
-        let ci = 0.7885 * angle.sin();
-        render_julia(c, ci, &format!("julia_anim{:02}.png", i));
+    println!("Rendering Burning Ship...");
+    
+    for py in 0..h {
+        let c_im = y_min + py as f64 * sy;
+        for px in 0..w {
+            let c_re = x_min + px as f64 * sx;
+            let t = burning_ship(c_re, c_im, max_iter);
+            img.put_pixel(px, py, color(t, max_iter));
+        }
+        if py % 150 == 0 { println!("Row {}/{}", py, h); }
     }
     
-    println!("\n7 Julia sets rendered! darkS3c v5");
+    img.save("burning_ship.png").expect("Save failed!");
+    println!("BURNING SHIP v6 rendered: burning_ship.png");
 }
