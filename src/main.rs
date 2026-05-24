@@ -1,56 +1,54 @@
-// darkS3c: v6 - BURNING SHIP!
-// Different formula: take ABSOLUTE values = totally wild shape
+// darkS3c: v7 - DEEP ZOOM!
+// Zoom into Seahorse valley - find the mini-brot
 
 use image::{ImageBuffer, Rgb, RgbImage};
 
-fn burning_ship(c_re: f64, c_im: f64, max_iter: u32) -> u32 {
+fn iter_point(c_re: f64, c_im: f64, max_iter: u32) -> u32 {
     let mut z_re = 0.0_f64;
     let mut z_im = 0.0_f64;
     
-    for iteration in 0..max_iter {
-        let mag_sq = z_re * z_re + z_im * z_im;
-        if mag_sq > 4.0 { return iteration; }
-        
-        // BURNING SHIP FORMULA: use ABSOLUTE values!
-        let new_re = z_re * z_re - z_im * z_im + c_re;
-        let new_im = 2.0 * z_re.abs() * z_im.abs() + c_im;
-        z_re = new_re;
-        z_im = new_im;
+    for i in 0..max_iter {
+        let m = z_re * z_re + z_im * z_im;
+        if m > 4.0 { return i; }
+        let nr = z_re * z_re - z_im * z_im + c_re;
+        let ni = 2.0 * z_re * z_im + c_im;
+        z_re = nr;
+        z_im = ni;
     }
     max_iter
 }
 
-fn color(t: u32, max_iter: u32) -> Rgb<u8> {
-    if t >= max_iter { return Rgb([0, 0, 0]); }
-    let t = t as f64 / max_iter as f64;
-    let r = (t * 255.0) as u8;
-    let g = (t * 200.0) as u8;
-    let b = (255.0 - t * 180.0) as u8;
-    Rgb([r, g, b])
+fn color(t: u32, mi: u32) -> Rgb<u8> {
+    if t >= mi { return Rgb([0, 0, 0]); }
+    let s = (t as f64 / mi as f64 * 255.0) as u8;
+    Rgb([s, (s.wrapping_add(40)), (s.wrapping_add(80))])
 }
 
 fn main() {
-    let (w, h) = (1200u32, 900u32);
-    let max_iter = 150u32;
-    let (x_min, x_max) = (-2.5, 1.5);
-    let (y_min, y_max) = (-1.8, 1.8);
-    let sx = (x_max - x_min) / w as f64;
-    let sy = (y_max - y_min) / h as f64;
+    let (w, h) = (1600u32, 1200u32);
+    let mi = 300u32;
+    
+    // Deep zoom into Seahorse Valley (-0.7453, 0.1127i)
+    let cx = -0.7453;
+    let cy = 0.1127;
+    let zoom = 300.0;  // How far to zoom
+    
+    let scale = 4.0 / zoom / w.min(h) as f64;
     
     let mut img: RgbImage = ImageBuffer::new(w, h);
     
-    println!("Rendering Burning Ship...");
+    println!("Deep Zoom x{} at ({}, {})...", zoom, cx, cy);
     
     for py in 0..h {
-        let c_im = y_min + py as f64 * sy;
+        let y = cy + (py as f64 - h as f64 / 2.0) * scale;
         for px in 0..w {
-            let c_re = x_min + px as f64 * sx;
-            let t = burning_ship(c_re, c_im, max_iter);
-            img.put_pixel(px, py, color(t, max_iter));
+            let x = cx + (px as f64 - w as f64 / 2.0) * scale;
+            let t = iter_point(x, y, mi);
+            img.put_pixel(px, py, color(t, mi));
         }
-        if py % 150 == 0 { println!("Row {}/{}", py, h); }
+        if py % 200 == 0 { println!("Row {}/{}", py, h); }
     }
     
-    img.save("burning_ship.png").expect("Save failed!");
-    println!("BURNING SHIP v6 rendered: burning_ship.png");
+    img.save("deep_zoom.png").expect("Save failed!");
+    println!("DEEP ZOOM v7: deep_zoom.png {}x{}", w, h);
 }
