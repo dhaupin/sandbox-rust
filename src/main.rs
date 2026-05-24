@@ -1,63 +1,43 @@
-// NEBULA - ethereal cloud-like Julia coloring
-// Using escape-time + smooth iteration technique
+// FINAL STAND - one beautiful Julia at extreme detail
 
 use image::{ImageBuffer, Rgb, RgbImage};
 
-fn iterate(mut zr: f64, mut zi: f64, cr: f64, ci: f64, mi: u32) -> (u32, f64) {
+fn julia(mut zr: f64, mut zi: f64, cr: f64, ci: f64, mi: u32) -> u32 {
     for i in 0..mi {
-        let d = (zr*zr + zi*zi).sqrt();
-        if d > 2.0 { return (i, d - 2.0); }
+        if zr*zr + zi*zi > 4.0 { return i; }
         let nz = zr*zr - zi*zi + cr;
         zi = 2.0*zr*zi + ci;
         zr = nz;
     }
-    (mi, 0.0)
+    mi
 }
 
-fn nebula(iter: u32, esc: f64, mi: u32) -> Rgb<u8> {
-    if iter >= mi { return Rgb([15, 8, 30]); }
-    
-    let s = iter as f64 + 1.0 - esc.ln() / 0.693147;  // smooth
-    let t = s / mi as f64;
-    let cycles = t * 12.0;
-    
-    // Lavender, aqua, rose nebula tones
-    let r = ((cycles.cos() * 90.0 + 200.0 * (1.0-t))).max(20.0).min(255.0) as u8;
-    let g = ((cycles.sin() * 70.0 + 160.0 * (1.0-t))).max(25.0).min(255.0) as u8;
-    let b = ((cycles.cos() * 50.0 + 220.0 * (1.0-t))).max(50.0).min(255.0) as u8;
-    
-    Rgb([r, g, b])
+fn color(t: u32, mi: u32) -> Rgb<u8> {
+    if t >= mi { return Rgb([2, 1, 8]); }
+    let p = t as f64 / mi as f64;
+    let wave = p * 16.0 * 3.141592;
+    let r = ((wave.cos() * 100.0 + 210.0) * (1.0-p*0.3)) as u8;
+    let g = ((wave.sin() * 80.0 + 165.0) * (1.0-p*0.4)) as u8;
+    let b = ((wave.cos() * 60.0 + 230.0) * (1.0-p*0.2)) as u8;
+    Rgb([r.max(15), g.max(10), b.max(25)])
 }
 
 fn main() {
-    println!("=== NEBULA SERIES ===\n");
-    
-    let sz = 800u32;
-    let mi = 350u32;
-    let b = 1.7_f64;
+    let sz = 1000u32;
+    let mi = 500u32;
+    let b = 1.6_f64;
     let sc = 2.0 * b / sz as f64;
+    let (cr, ci) = (-0.4, 0.6);
     
-    let constants = vec![
-        (-0.4, 0.6),
-        (-0.1, 0.651),
-        (-0.75, 0.1),
-    ];
-    
-    for (c1, c2) in constants {
-        let fname = format!("nebula_{:.1}_{:.1}.png", c1, c2);
-        let mut img: RgbImage = ImageBuffer::new(sz, sz);
-        
-        for py in 0..sz {
-            let zi = -b + py as f64 * sc;
-            for px in 0..sz {
-                let zr = -b + px as f64 * sc;
-                let (it, es) = iterate(zr, zi, c1, c2, mi);
-                img.put_pixel(px, py, nebula(it, es, mi));
-            }
+    let mut img = ImageBuffer::new(sz, sz);
+    for py in 0..sz {
+        let zi = -b + py as f64 * sc;
+        for px in 0..sz {
+            let zr = -b + px as f64 * sc;
+            let t = julia(zr, zi, cr, ci, mi);
+            img.put_pixel(px, py, color(t, mi));
         }
-        img.save(&fname).unwrap();
-        println!("NEBULA: {}", fname);
     }
-    
-    println!("\n=== NEBULA COMPLETE ===");
+    img.save("final_stand.png").unwrap();
+    println!("FINAL STAND: Douady @ 1000x1000, iters=500");
 }
