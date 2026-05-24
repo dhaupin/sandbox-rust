@@ -1,4 +1,4 @@
-// HYPERION SPIRAL 
+// HYPERION DRAGON
 
 use image::{ImageBuffer, Rgb, RgbImage};
 
@@ -23,11 +23,11 @@ fn color(t: u32, mi: u32) -> Rgb<u8> {
 }
 
 fn main() {
-    println!("=== HYPERION SPIRAL ===");
-    let (sz, mi) = (1100u32, 600u32);
+    println!("=== HYPERION DRAGON ===");
+    let (sz, mi) = (1050u32, 550u32);
     let b = 1.65_f64;
     let sc = 2.0 * b / sz as f64;
-    let (cr, ci) = (-0.123, 0.745123);
+    let (cr, ci) = (-0.8, 0.156);
     let mut img: RgbImage = ImageBuffer::new(sz, sz);
     
     for py in 0..sz {
@@ -39,6 +39,6 @@ fn main() {
         }
         if py % 200 == 0 { println!("Row {}/{}", py, sz); }
     }
-    img.save("hyperion_spiral.png").unwrap();
-    println!("SAVED: hyperion_spiral");
+    img.save("hyperion_dragon.png").unwrap();
+    println!("SAVED: hyperion_dragon");
 }
