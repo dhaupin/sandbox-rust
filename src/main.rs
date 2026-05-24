@@ -1,61 +1,65 @@
-// ORBIT TRAP MANDELBROT - super smooth coloring!
+// darkS3c: GRAND FINALE
+// The most beautiful Julia set we'll make tonight!
 
 use image::{ImageBuffer, Rgb, RgbImage};
 
-fn mandelbrot(cr: f64, ci: f64, mi: u32) -> (u32, f64) {
-    let mut zr = 0.0_f64;
-    let mut zi = 0.0_f64;
-    let mut min_dist = 1000.0_f64;
-    
+fn julia(mut zr: f64, mut zi: f64, cr: f64, ci: f64, mi: u32) -> u32 {
     for i in 0..mi {
-        let dist_sq = zr*zr + zi*zi;
-        if dist_sq < min_dist * min_dist { min_dist = dist_sq.sqrt(); }
-        if dist_sq > 4.0 { return (i, min_dist); }
+        if zr*zr + zi*zi > 4.0 { return i; }
         let nz = zr*zr - zi*zi + cr;
         zi = 2.0*zr*zi + ci;
         zr = nz;
     }
-    (mi, min_dist)
+    mi
 }
 
-fn smooth_color(iter: u32, min_dist: f64, mi: u32) -> Rgb<u8> {
-    if iter >= mi { return Rgb([0, 0, 5]); }
+// The ULTIMATE coral-silver-midnight palette
+fn ultimate(t: u32, mi: u32) -> Rgb<u8> {
+    if t >= mi { return Rgb([8, 3, 18]); }
+    let p = t as f64 / mi as f64;
     
-    // Smooth coloring formula
-    let smoothed = iter as f64 + 4.0 - min_dist.ln() / 2.0_f64.ln();
-    let t = smoothed / mi as f64;
+    // Smooth gradient with coral, silver, midnight blue
+    let phase = p * 6.28318530718 * 2.0;
     
-    // Blue-gold ocean palette
-    let r = ((t * 280.0).sin() * 80.0 + 130.0).max(10.0) as u8;
-    let g = ((t * 200.0).cos() * 70.0 + 100.0).max(5.0) as u8;
-    let b = ((t * 320.0).sin() * 100.0 + 180.0).max(40.0) as u8;
+    let r = ((phase.cos() * 120.0 + 180.0 * p) / 1.5).max(15.0).min(255.0) as u8;
+    let g = ((phase.sin() * 80.0 + 140.0 * p) / 1.5).max(10.0).min(255.0) as u8;
+    let b = ((phase.cos() * 60.0 + 200.0 * p) / 1.5).max(40.0).min(255.0) as u8;
     
     Rgb([r, g, b])
 }
 
 fn main() {
-    println!("=== ORBIT TRAP MANDELBROT ===\n");
+    println!("=== GRAND FINALE ===\n");
     
-    let w = 1000u32;
-    let h = 800u32;
-    let mi = 500u32;
-    let (xm, xM) = (-2.0, 0.6);
-    let (ym, yM) = (-1.2, 1.2);
-    let sx = (xM - xm) / w as f64;
-    let sy = (yM - ym) / h as f64;
+    let size = 1200u32;
+    let mi = 400u32;
+    let bound = 1.65_f64;
+    let sc = 2.0 * bound / size as f64;
     
-    let mut img = ImageBuffer::new(w, h);
+    // Most aesthetically interesting Julia constants
+    let targets = vec![
+        (-0.4, 0.6, "douady_grand"),
+        (-0.123, 0.745123, "spiral_grand"),
+        (-0.8, 0.156, "dragon_grand"),
+    ];
     
-    for py in 0..h {
-        let ci = ym + py as f64 * sy;
-        for px in 0..w {
-            let cr = xm + px as f64 * sx;
-            let (iter, md) = mandelbrot(cr, ci, mi);
-            img.put_pixel(px, py, smooth_color(iter, md, mi));
+    for (cr, ci, name) in targets {
+        let mut img: RgbImage = ImageBuffer::new(size, size);
+        
+        for py in 0..size {
+            let zi = -bound + py as f64 * sc;
+            for px in 0..size {
+                let zr = -bound + px as f64 * sc;
+                let t = julia(zr, zi, cr, ci, mi);
+                img.put_pixel(px, py, ultimate(t, mi));
+            }
+            if py % 200 == 0 { println!("{}_: row {}", name, py); }
         }
-        if py % 100 == 0 { println!("Line {}/{}", py, h); }
+        
+        img.save(&format!("{}.png", name)).unwrap();
+        println!("SAVED: {}.png", name);
     }
     
-    img.save("orbit_trap_mandelbrot.png").unwrap();
-    println!("SAVED: orbit_trap_mandelbrot.png - smooth coloring!");
+    println!("\n=== GRAND FINALE COMPLETE ===");
+    println!("darkS3c signing off... for now.");
 }
