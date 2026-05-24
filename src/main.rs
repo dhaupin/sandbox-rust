@@ -1,4 +1,4 @@
-// HYPERION - Ultimate detail Douady
+// HYPERION SPIRAL 
 
 use image::{ImageBuffer, Rgb, RgbImage};
 
@@ -23,21 +23,22 @@ fn color(t: u32, mi: u32) -> Rgb<u8> {
 }
 
 fn main() {
-    println!("=== HYPERION START ===");
-    let (sz, mi) = (1400u32, 700u32);
+    println!("=== HYPERION SPIRAL ===");
+    let (sz, mi) = (1100u32, 600u32);
     let b = 1.65_f64;
     let sc = 2.0 * b / sz as f64;
-    let (cr, ci) = (-0.4, 0.6);
+    let (cr, ci) = (-0.123, 0.745123);
     let mut img: RgbImage = ImageBuffer::new(sz, sz);
     
     for py in 0..sz {
         let zi = -b + py as f64 * sc;
         for px in 0..sz {
             let zr = -b + px as f64 * sc;
-            img.put_pixel(px, py, color(iterate(zr, zi, cr, ci, mi), mi));
+            let iter = iterate(zr, zi, cr, ci, mi);
+            img.put_pixel(px, py, color(iter, mi));
         }
-        if py % 250 == 0 { println!("Row {}/{}", py, sz); }
+        if py % 200 == 0 { println!("Row {}/{}", py, sz); }
     }
-    img.save("hyperion.png").unwrap();
-    println!("HYPERION: {}x{} @ {} iter", sz, sz, mi);
+    img.save("hyperion_spiral.png").unwrap();
+    println!("SAVED: hyperion_spiral");
 }
