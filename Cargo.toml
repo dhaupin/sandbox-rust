@@ -1,0 +1,10 @@
+[package]
+name = "sandbox-rust"
+version = "0.1.0"
+edition = "2021"
+authors = ["darkS3c"]
+
+[dependencies]
+
+[profile.release]
+opt-level = 3
