@@ -1,4 +1,5 @@
-// HYPERION DRAGON
+// ANIMATION: Julia morph through parameter space
+// 30 frames from spiral region to dragon region
 
 use image::{ImageBuffer, Rgb, RgbImage};
 
@@ -23,22 +24,33 @@ fn color(t: u32, mi: u32) -> Rgb<u8> {
 }
 
 fn main() {
-    println!("=== HYPERION DRAGON ===");
-    let (sz, mi) = (1050u32, 550u32);
-    let b = 1.65_f64;
-    let sc = 2.0 * b / sz as f64;
-    let (cr, ci) = (-0.8, 0.156);
-    let mut img: RgbImage = ImageBuffer::new(sz, sz);
+    println!("=== JULIA MORPH 30 FRAMES ===");
     
-    for py in 0..sz {
-        let zi = -b + py as f64 * sc;
-        for px in 0..sz {
-            let zr = -b + px as f64 * sc;
-            let iter = iterate(zr, zi, cr, ci, mi);
-            img.put_pixel(px, py, color(iter, mi));
+    let (sz, mi, frames) = (600u32, 300u32, 30u32);
+    let b = 1.6_f64;
+    let sc = 2.0 * b / sz as f64;
+    
+    // Path from -0.1+0.65i toward -0.75+0.1i
+    for f in 0..frames {
+        let t = f as f64 / (frames - 1) as f64;
+        let cr = -0.1 - t * 0.65;
+        let ci = 0.65 - t * 0.55;
+        
+        let mut img: RgbImage = ImageBuffer::new(sz, sz);
+        
+        for py in 0..sz {
+            let zi = -b + py as f64 * sc;
+            for px in 0..sz {
+                let zr = -b + px as f64 * sc;
+                let iter = iterate(zr, zi, cr, ci, mi);
+                img.put_pixel(px, py, color(iter, mi));
+            }
         }
-        if py % 200 == 0 { println!("Row {}/{}", py, sz); }
+        
+        let name = format!("morph_{:02}.png", f);
+        img.save(&name).unwrap();
+        println!("Frame {}/{}: c={:.3}+{:.3}i", f+1, frames, cr, ci);
     }
-    img.save("hyperion_dragon.png").unwrap();
-    println!("SAVED: hyperion_dragon");
+    
+    println!("SAVED: 30 morph frames");
 }
