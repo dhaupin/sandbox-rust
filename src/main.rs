@@ -1,4 +1,4 @@
-// FINAL STAND - one beautiful Julia at extreme detail
+// ELECTRIC SHOCK - glowing neon palatte
 
 use image::{ImageBuffer, Rgb, RgbImage};
 
@@ -13,21 +13,27 @@ fn julia(mut zr: f64, mut zi: f64, cr: f64, ci: f64, mi: u32) -> u32 {
 }
 
 fn color(t: u32, mi: u32) -> Rgb<u8> {
-    if t >= mi { return Rgb([2, 1, 8]); }
+    if t >= mi { return Rgb([0, 0, 0]); }
     let p = t as f64 / mi as f64;
-    let wave = p * 16.0 * 3.141592;
-    let r = ((wave.cos() * 100.0 + 210.0) * (1.0-p*0.3)) as u8;
-    let g = ((wave.sin() * 80.0 + 165.0) * (1.0-p*0.4)) as u8;
-    let b = ((wave.cos() * 60.0 + 230.0) * (1.0-p*0.2)) as u8;
-    Rgb([r.max(15), g.max(10), b.max(25)])
+    // HOT NEON: cyan, magenta, electric yellow
+    if p < 0.3 { 
+        let g = (p / 0.3 * 255.0) as u8;
+        Rgb([0, g, g])  // Cyan burst
+    } else if p < 0.7 {
+        let g = ((p - 0.3) / 0.4 * 255.0) as u8;
+        Rgb([g, 0, g])  // Magenta
+    } else {
+        let g = ((p - 0.7) / 0.3 * 255.0) as u8;
+        Rgb([g, g, 0]) // Yellow
+    }
 }
 
 fn main() {
-    let sz = 1000u32;
-    let mi = 500u32;
-    let b = 1.6_f64;
+    let sz = 700u32;
+    let mi = 300u32;
+    let b = 1.5_f64;
     let sc = 2.0 * b / sz as f64;
-    let (cr, ci) = (-0.4, 0.6);
+    let (cr, ci) = (-0.7, 0.27015);
     
     let mut img = ImageBuffer::new(sz, sz);
     for py in 0..sz {
@@ -38,6 +44,6 @@ fn main() {
             img.put_pixel(px, py, color(t, mi));
         }
     }
-    img.save("final_stand.png").unwrap();
-    println!("FINAL STAND: Douady @ 1000x1000, iters=500");
+    img.save("electric_shock.png").unwrap();
+    println!("ELECTRIC SHOCK: neon Julia @ 700x700");
 }
