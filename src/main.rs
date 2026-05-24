@@ -1,5 +1,4 @@
-// ANIMATION: Julia morph through parameter space
-// 30 frames from spiral region to dragon region
+// RANDOM EXPLORER - Find hidden Julia gems!
 
 use image::{ImageBuffer, Rgb, RgbImage};
 
@@ -24,18 +23,20 @@ fn color(t: u32, mi: u32) -> Rgb<u8> {
 }
 
 fn main() {
-    println!("=== JULIA MORPH 30 FRAMES ===");
+    // Interesting Julia constants to explore
+    let gems = vec![
+        (-0.7, 0.27015, "gemma"),     
+        (-0.835, -0.2321, "gemmab"),
+        (-0.4, 0.0, "gemmac"),        
+        (0.285, 0.01, "gemmad"),      
+        (-0.1, 0.651, "gemmae"),      
+    ];
     
-    let (sz, mi, frames) = (600u32, 300u32, 30u32);
+    let (sz, mi) = (500u32, 250u32);
     let b = 1.6_f64;
     let sc = 2.0 * b / sz as f64;
     
-    // Path from -0.1+0.65i toward -0.75+0.1i
-    for f in 0..frames {
-        let t = f as f64 / (frames - 1) as f64;
-        let cr = -0.1 - t * 0.65;
-        let ci = 0.65 - t * 0.55;
-        
+    for (cr, ci, name) in gems {
         let mut img: RgbImage = ImageBuffer::new(sz, sz);
         
         for py in 0..sz {
@@ -47,10 +48,9 @@ fn main() {
             }
         }
         
-        let name = format!("morph_{:02}.png", f);
-        img.save(&name).unwrap();
-        println!("Frame {}/{}: c={:.3}+{:.3}i", f+1, frames, cr, ci);
+        img.save(&format!("{}.png", name)).unwrap();
+        println!("GEM {}: c={:.3}+{:.3}i", name, cr, ci);
     }
     
-    println!("SAVED: 30 morph frames");
+    println!("DONE: 5 gem explorations");
 }
