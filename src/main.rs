@@ -1,4 +1,4 @@
-// CHAOS BOUNDARY - ultra-high iterations reveal fine tendrils
+// VERDANT - green/gold natural palette
 
 use image::{ImageBuffer, Rgb, RgbImage};
 
@@ -13,32 +13,31 @@ fn iterate(mut zr: f64, mut zi: f64, cr: f64, ci: f64, mi: u32) -> u32 {
 }
 
 fn color(t: u32, mi: u32) -> Rgb<u8> {
-    if t >= mi { return Rgb([1, 0, 3]); }
+    if t >= mi { return Rgb([2, 8, 4]); }
     let p = t as f64 / mi as f64;
-    let w = p * 3.0 * 3.14159;
-    let fade = 1.0 - p;
-    let r = ((w.cos() * 120.0 * fade + 220.0 * p) as u8).max(8).min(255);
-    let g = ((w.sin() * 90.0 * fade + 180.0 * p.sqrt()) as u8).max(5).min(245);
-    let b = ((w.cos() * 70.0 * fade + 240.0 * p) as u8).max(25).min(255);
+    // Fern green + gold
+    let w = p * 2.0 * 3.14159;
+    let r = ((w.cos() * 60.0 + 180.0 * p) as u8).max(10).min(230);
+    let g = ((w.sin() * 80.0 + 200.0 * p.sqrt()) as u8).max(40).min(230);
+    let b = ((w.cos() * 40.0 + 80.0 * p) as u8).max(15).min(140);
     Rgb([r, g, b])
 }
 
 fn main() {
-    println!("=== CHAOS BOUNDARY ===");
-    let (sz, mi) = (450u32, 500u32);
-    let b = 1.65_f64;
+    println!("=== VERDANT ===");
+    let (sz, mi) = (750u32, 400u32);
+    let b = 1.7_f64;
     let sc = 2.0 * b / sz as f64;
-    let (cr, ci) = (-0.4, 0.6);
+    let (cr, ci) = (-0.75, 0.1);
     let mut img: RgbImage = ImageBuffer::new(sz, sz);
     
     for py in 0..sz {
         let zi = -b + py as f64 * sc;
         for px in 0..sz {
             let zr = -b + px as f64 * sc;
-            let it = iterate(zr, zi, cr, ci, mi);
-            img.put_pixel(px, py, color(it, mi));
+            img.put_pixel(px, py, color(iterate(zr, zi, cr, ci, mi), mi));
         }
     }
-    img.save("chaos_boundary.png").unwrap();
-    println!("SAVED: chaos_boundary 500 iter");
+    img.save("verdant.png").unwrap();
+    println!("VERDANT: golden-green Dragon");
 }
