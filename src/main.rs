@@ -1,4 +1,4 @@
-// ELECTRIC SHOCK - glowing neon palatte
+// LAST LIGHT - sunset palette
 
 use image::{ImageBuffer, Rgb, RgbImage};
 
@@ -13,27 +13,20 @@ fn julia(mut zr: f64, mut zi: f64, cr: f64, ci: f64, mi: u32) -> u32 {
 }
 
 fn color(t: u32, mi: u32) -> Rgb<u8> {
-    if t >= mi { return Rgb([0, 0, 0]); }
+    if t >= mi { return Rgb([10, 5, 20]); }
     let p = t as f64 / mi as f64;
-    // HOT NEON: cyan, magenta, electric yellow
-    if p < 0.3 { 
-        let g = (p / 0.3 * 255.0) as u8;
-        Rgb([0, g, g])  // Cyan burst
-    } else if p < 0.7 {
-        let g = ((p - 0.3) / 0.4 * 255.0) as u8;
-        Rgb([g, 0, g])  // Magenta
-    } else {
-        let g = ((p - 0.7) / 0.3 * 255.0) as u8;
-        Rgb([g, g, 0]) // Yellow
-    }
+    let r = (p * 255.0 * 1.2) as u8;
+    let g = (p.sin() * 100.0 + p * 150.0) as u8;
+    let b = (50.0 - p * 30.0) as u8;
+    Rgb([r.min(255), g.min(220).max(20), b.max(10)])
 }
 
 fn main() {
-    let sz = 700u32;
-    let mi = 300u32;
+    let sz = 600u32;
+    let mi = 250u32;
     let b = 1.5_f64;
     let sc = 2.0 * b / sz as f64;
-    let (cr, ci) = (-0.7, 0.27015);
+    let (cr, ci) = (-0.1, 0.651);
     
     let mut img = ImageBuffer::new(sz, sz);
     for py in 0..sz {
@@ -44,6 +37,6 @@ fn main() {
             img.put_pixel(px, py, color(t, mi));
         }
     }
-    img.save("electric_shock.png").unwrap();
-    println!("ELECTRIC SHOCK: neon Julia @ 700x700");
+    img.save("last_light.png").unwrap();
+    println!("LAST LIGHT: sunset Julia");
 }
